@@ -51,30 +51,105 @@ namespace TestingAppWPF
         {
             public string Content { get; set; }
             public Answer[] Answers { get; set; }
+
+            //Fetching Question Score, Award or Penalty will calculate total score applied based on IsUserSelected flag
             public virtual int Score
             {
                 get
                 {
-                    return Answers?.Sum(answer => answer.Score) ?? 0;
+                    if (Answers == null) return 0;
+                    else
+                    {
+                        int totalScore = 0;
+                        switch (this.QuestionType)
+                        {
+                            case questionType.textBox:
+                                {
+                                    var selectedTbAnswer = Answers.FirstOrDefault(a => a.IsUserSelected);
+                                    //Return score value, including negative points, if such answer exists (specifically penalized options)
+                                    if (selectedTbAnswer != null) { totalScore += selectedTbAnswer.Score; break; }
+                                }
+                                break;
+                            case questionType.radioButton:
+                                {
+                                    var selectedRbAnswer = Answers.FirstOrDefault(a => a.IsUserSelected);
+                                    if (selectedRbAnswer != null && selectedRbAnswer.IsTrue) { totalScore += selectedRbAnswer.Score; break; }
+                                }
+                                break;
+                            case questionType.checkBox:
+                                {
+                                    bool voidAward = false; //Flag for voiding award score if incorrect answers are selected
+                                    foreach (var answer in Answers)
+                                    {
+                                        if (answer.IsUserSelected && !answer.IsTrue) voidAward = true; break;
+                                    }
+                                    if (voidAward)
+                                    {
+                                        foreach (var answer in Answers)
+                                        {
+                                            //Count only penalty if award is voided
+                                            if (!answer.IsTrue && answer.IsUserSelected) totalScore += answer.Score;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        foreach (var answer in Answers)
+                                        {
+                                            if (answer.IsUserSelected) totalScore += answer.Score;
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                        return totalScore;
+                    }
+                }
+            }
+            //PLACEHOLDER: update award and penalty
+            public virtual int Award
+            {
+                get
+                {
+                    int totalAward = 0;
+                    foreach (var answer in Answers)
+                    {
+                        if (answer.IsUserSelected) totalAward += answer.Award;
+                    }
+                    return totalAward;
+                }
+            }
+            public virtual int Penalty
+            {
+                get
+                {
+                    int totalPenalty = 0;
+                    foreach (var answer in Answers)
+                    {
+                        if (answer.IsUserSelected) totalPenalty += answer.Penalty;
+                    }
+                    return totalPenalty;
+                    //return Answers?.Sum(answer => answer.Penalty) ?? 0;
                 }
             }
             public virtual questionType QuestionType
             {
                 get; set;
-                //get
-                //{
-                //    if (this.Answers.Length == 0) { return questionType.textBox; }
-                //    else
-                //    {
-                //        int trueAnswerCount = 0;
-                //        foreach (Answer answer in Answers) { if (answer.IsTrue) { trueAnswerCount++; } }
-                //If there are only true answers, define as textBox
-                //        if (this.Answers.Length == trueAnswerCount) { return questionType.textBox; }
-                //If there is only one true answer, define as radioButton
-                //        else if (trueAnswerCount == 1) { return questionType.radioButton; }
-                //If there are multiple correct answers with any incorrect ones, define as checkBox
-                //        else { return questionType.checkBox; }
-                //    }
+                /* Old virtual method, replaced with static declaration for flexibility, kept for reference only
+                get
+                {
+                    if (this.Answers.Length == 0) { return questionType.textBox; }
+                    else
+                    {
+                        int trueAnswerCount = 0;
+                        foreach (Answer answer in Answers) { if (answer.IsTrue) { trueAnswerCount++; } }
+                If there are only true answers, define as textBox
+                        if (this.Answers.Length == trueAnswerCount) { return questionType.textBox; }
+                If there is only one true answer, define as radioButton
+                        else if (trueAnswerCount == 1) { return questionType.radioButton; }
+                If there are multiple correct answers with any incorrect ones, define as checkBox
+                        else { return questionType.checkBox; }
+                    }
+                */
             }
         }
         public class Grade

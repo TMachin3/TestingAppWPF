@@ -9,6 +9,7 @@ namespace TestingAppWPF
     /// </summary>
     public partial class App : Application
     {
+        
     }
 
 }

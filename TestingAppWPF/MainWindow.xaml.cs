@@ -25,10 +25,10 @@ namespace TestingAppWPF
                 Content = "Which of these are programming languages? (Select all that apply)",
                 Answers = new Answer[]
                 {
-                    new Answer { Content = "Python", IsTrue = true, Score = 1 },
-                    new Answer { Content = "HTML", IsTrue = false, Score = 0 },
-                    new Answer { Content = "Java", IsTrue = true, Score = 1 },
-                    new Answer { Content = "CSS", IsTrue = false, Score = 0 }
+                    new Answer { Content = "Python", Correct = true, Score = 1 },
+                    new Answer { Content = "HTML", Correct = false, Score = 0 },
+                    new Answer { Content = "Java", Correct = true, Score = 1 },
+                    new Answer { Content = "CSS", Correct = false, Score = 0 }
                 }
             };
             foreach (var answer in q2.Answers)

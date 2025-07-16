@@ -20,7 +20,7 @@ namespace TestingAppWPF
     {
         public string Content { get; set; } = string.Empty;
         public int Score { get; set; }
-        public bool IsTrue { get; set; }
+        public bool Correct { get; set; }
         public bool IsUserSelected { get; set; } = false;
         public virtual int Award
         {
@@ -51,7 +51,7 @@ namespace TestingAppWPF
                 else
                 {
                     int trueAnswerCount = 0;
-                    foreach (Answer answer in Answers) { if (answer.IsTrue) { trueAnswerCount++; } }
+                    foreach (Answer answer in Answers) { if (answer.Correct) { trueAnswerCount++; } }
             If there are only true answers, define as textBox
                     if (this.Answers.Length == trueAnswerCount) { return questionType.textBox; }
             If there is only one true answer, define as radioButton
@@ -86,7 +86,7 @@ namespace TestingAppWPF
                         case questionType.radioButton:
                             {
                                 var selectedRbAnswer = Answers.FirstOrDefault(a => a.IsUserSelected);
-                                if (selectedRbAnswer != null && selectedRbAnswer.IsTrue) { totalScore += selectedRbAnswer.Score; break; }
+                                if (selectedRbAnswer != null && selectedRbAnswer.Correct) { totalScore += selectedRbAnswer.Score; break; }
                             }
                             break;
                         case questionType.checkBox:
@@ -94,14 +94,14 @@ namespace TestingAppWPF
                                 bool voidAward = false; //Flag for voiding award score if incorrect answers are selected
                                 foreach (var answer in Answers)
                                 {
-                                    if (answer.IsUserSelected && !answer.IsTrue) voidAward = true; break;
+                                    if (answer.IsUserSelected && !answer.Correct) voidAward = true; break;
                                 }
                                 if (voidAward)
                                 {
                                     foreach (var answer in Answers)
                                     {
                                         //Count only penalty if award is voided
-                                        if (!answer.IsTrue && answer.IsUserSelected) totalScore += answer.Score;
+                                        if (!answer.Correct && answer.IsUserSelected) totalScore += answer.Score;
                                     }
                                 }
                                 else
@@ -148,13 +148,13 @@ namespace TestingAppWPF
                         case questionType.textBox:
                             {
                                 var selectedTbAnswer = Answers.FirstOrDefault(a => a.IsUserSelected);
-                                if (selectedTbAnswer != null && selectedTbAnswer.IsTrue) return true;
+                                if (selectedTbAnswer != null && selectedTbAnswer.Correct) return true;
                                 else return false;
                             }
                         case questionType.radioButton:
                             {
                                 var selectedRbAnswer = Answers.FirstOrDefault(a => a.IsUserSelected);
-                                if (selectedRbAnswer != null && selectedRbAnswer.IsTrue) return true;
+                                if (selectedRbAnswer != null && selectedRbAnswer.Correct) return true;
                                 else return false;
                             }
                         case questionType.checkBox:
@@ -162,12 +162,12 @@ namespace TestingAppWPF
                                 bool voidAward = false; //Flag for voiding award score if incorrect answers are selected
                                 foreach (var answer in Answers)
                                 {
-                                    if (answer.IsUserSelected && !answer.IsTrue)
+                                    if (answer.IsUserSelected && !answer.Correct)
                                     {
                                         voidAward = true; break;
                                     }
                                 }
-                                return !voidAward;
+                                return Answers.Any(answer => answer.IsUserSelected && answer.Correct && !voidAward);
                             }
                         default: return false;
                     }
@@ -202,10 +202,10 @@ namespace TestingAppWPF
                     if (question.Answers != null)
                     {
                         // For each question, sum up the scores of its true answers for max possible score.
-                        // For text box questions, assume the 'IsTrue' answer is the only one counted towards score.
+                        // For text box questions, assume the 'Correct' answer is the only one counted towards score.
                         if (question.QuestionType == questionType.textBox)
                         {
-                            var trueAnswer = question.Answers.FirstOrDefault(a => a.IsTrue);
+                            var trueAnswer = question.Answers.FirstOrDefault(a => a.Correct);
                             if (trueAnswer != null)
                             {
                                 maxPossibleScore += trueAnswer.Score;
@@ -214,8 +214,8 @@ namespace TestingAppWPF
                         }
                         else // For radioButton and checkBox
                         {
-                            maxPossibleScore += question.Answers.Where(a => a.IsTrue).Sum(a => a.Score);
-                            maxPossibleCorrectAnswers += question.Answers.Count(a => a.IsTrue);
+                            maxPossibleScore += question.Answers.Where(a => a.Correct).Sum(a => a.Score);
+                            maxPossibleCorrectAnswers += question.Answers.Count(a => a.Correct);
                         }
                     }
                 }
@@ -274,7 +274,7 @@ namespace TestingAppWPF
                         var selectedRbAnswer = question.Answers.FirstOrDefault(a => a.IsUserSelected);
                         if (selectedRbAnswer != null)
                         {
-                            if (selectedRbAnswer.IsTrue)
+                            if (selectedRbAnswer.Correct)
                             {
                                 questionScore += selectedRbAnswer.Score;
                                 questionCorrectCount++;
@@ -294,7 +294,7 @@ namespace TestingAppWPF
                         {
                             if (answer.IsUserSelected)
                             {
-                                if (answer.IsTrue)
+                                if (answer.Correct)
                                 {
                                     questionScore += answer.Score;
                                     questionCorrectCount++;
@@ -323,7 +323,7 @@ namespace TestingAppWPF
                         break;
 
                     case questionType.textBox:
-                        var correctTextBoxAnswer = question.Answers.FirstOrDefault(a => a.IsTrue);
+                        var correctTextBoxAnswer = question.Answers.FirstOrDefault(a => a.Correct);
                         var selectedTextBoxAnswer = question.Answers.FirstOrDefault(a => a.IsUserSelected);
 
                         if (correctTextBoxAnswer != null && selectedTextBoxAnswer != null &&

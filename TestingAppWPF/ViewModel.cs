@@ -26,8 +26,7 @@ namespace TestingAppWPF
         }
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            Console.Beep();
-            PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

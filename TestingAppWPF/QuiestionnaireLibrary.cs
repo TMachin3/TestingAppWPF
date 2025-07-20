@@ -188,8 +188,8 @@ namespace TestingAppWPF
     {
         public Question[]? Questions { get; set; }
         public Grade[]? Grades { get; set; }
-        public int DefaultAward { get; set; } = 1;
-        public int DefaultPenalty { get; set; } = 0;
+        public string? Title { get; set; }
+        public string? Subject { get; set; }
         public void SetDefaultPercentageGrades()
         {
             int maxPossibleScore = 0;

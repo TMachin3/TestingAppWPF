@@ -39,6 +39,11 @@ namespace TestingAppWPF
             Console.WriteLine(q2.IsCorrect);
             InitializeComponent();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
 }

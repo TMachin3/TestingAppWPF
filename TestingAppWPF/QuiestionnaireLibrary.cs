@@ -4,9 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace TestingAppWPF
-{
+{   
     public enum questionType { textBox, checkBox, radioButton }
     public struct QuizResults
     {
@@ -16,12 +17,25 @@ namespace TestingAppWPF
         public int IncorrectAnswersCount { get; set; }
         public int TotalPenalty { get; set; }
     }
-    public class Answer
+    public class Answer : BaseViewModel
+    // Если Answer.IsUserSelected привязывается напрямую к UI (например, CheckBox),
+    // то Answer сам должен реализовать INotifyPropertyChanged для IsUserSelected.
+    // Если же нужна дополнительная логика или адаптация, то AnswerViewModel всё ещё актуален.
+ 
     {
         public string Content { get; set; } = string.Empty;
         public int Score { get; set; }
         public bool Correct { get; set; }
-        public bool IsUserSelected { get; set; } = false;
+
+        // --- THIS IS THE FIX ---
+        private bool _isUserSelected = false; // 1. Private backing field for the property
+        public bool IsUserSelected
+        {
+            get => _isUserSelected;
+            set => SetProperty(ref _isUserSelected, value); // 2. Use SetProperty to notify UI
+        }
+        // --- END OF FIX ---
+
         public virtual int Award
         {
             get

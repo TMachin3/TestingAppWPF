@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace TestingAppWPF
@@ -91,29 +92,28 @@ namespace TestingAppWPF
             SaveUserAnswers();
 
             QuizResults results = _quizModel.GradeUserAnswers();
-            // Здесь вы можете обработать результаты, например, отобразить их в новом окне
-            // или обновить свойства в QuizViewModel для отображения результатов в текущем View.
-            // Например:
-            // FinalScore = results.TotalScore;
-            // FinalGradeTitle = results.FinalGrade?.Title;
-            // OnPropertyChanged(nameof(FinalScore));
-            // OnPropertyChanged(nameof(FinalGradeTitle));
+            string message = $"Тест завершен!\n\n" +
+                             $"Набранные баллы: {results.TotalScore}\n" +
+                             $"Правильных ответов: {results.CorrectAnswersCount}\n" +
+                             $"Неправильных ответов: {results.IncorrectAnswersCount}\n" +
+                             $"Штрафные баллы: {results.TotalPenalty}\n\n" +
+                             $"Итоговая оценка: {results.FinalGrade?.Title ?? "Не оценено"}";
+
+            // Display the message box
+            MessageBox.Show(message, "Результаты теста", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // Optionally, disable further navigation or perform other actions after submission
+            // For example, you might want to prevent further question changes:
+            // CurrentQuestionIndex = _quizModel.Questions.Length; // Move to a "results" state, if you add one
+            
+            //((RelayCommand)PreviousQuestionCommand).RaiseCanExecuteChanged();
+            //((RelayCommand)NextQuestionCommand).RaiseCanExecuteChanged();
+            //((RelayCommand)SubmitQuizCommand).RaiseCanExecuteChanged(); // Submit button will now be disabled
         }
 
         private void SaveUserAnswers()
         {
-            // Поскольку Answers теперь ObservableCollection<Answer>,
-            // а Answer.IsUserSelected - это свойство, привязанное к CheckBox/RadioButton,
-            // изменения в Answer.IsUserSelected будут происходить напрямую,
-            // если Answer.IsUserSelected реализует INotifyPropertyChanged,
-            // или если привязка Mode=TwoWay.
-            // Если Answer не реализует INotifyPropertyChanged,
-            // и вы используете CheckBox (который напрямую меняет IsUserSelected),
-            // то явного "сохранения" здесь не потребуется, так как изменения уже в модели.
-            // Если вы используете AnswerViewModel (как в предыдущем примере),
-            // то здесь нужно будет синхронизировать IsSelected из AnswerViewModel с IsUserSelected в Model.Answer.
-            // Для простоты, если IsUserSelected в Model.Answer прямо привязывается, то этот метод может быть пустым
-            // или использоваться для дополнительной логики валидации/агрегации перед переходом к следующему вопросу.
+
         }
     }
 

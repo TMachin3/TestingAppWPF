@@ -18,23 +18,18 @@ namespace TestingAppWPF
         public int TotalPenalty { get; set; }
     }
     public class Answer : BaseViewModel
-    // Если Answer.IsUserSelected привязывается напрямую к UI (например, CheckBox),
-    // то Answer сам должен реализовать INotifyPropertyChanged для IsUserSelected.
-    // Если же нужна дополнительная логика или адаптация, то AnswerViewModel всё ещё актуален.
  
     {
         public string Content { get; set; } = string.Empty;
         public int Score { get; set; }
         public bool Correct { get; set; }
 
-        // --- THIS IS THE FIX ---
         private bool _isUserSelected = false; // 1. Private backing field for the property
         public bool IsUserSelected
         {
             get => _isUserSelected;
             set => SetProperty(ref _isUserSelected, value); // 2. Use SetProperty to notify UI
         }
-        // --- END OF FIX ---
 
         public virtual int Award
         {
@@ -51,10 +46,16 @@ namespace TestingAppWPF
             }
         }
     }
-    public class Question
+    public class Question : BaseViewModel
     {
         public string Content { get; set; } = string.Empty;
         public Answer[]? Answers { get; set; }
+        private string _userTextInput = string.Empty;
+        public string UserTextInput
+        {
+            get => _userTextInput;
+            set => SetProperty(ref _userTextInput, value); // Use SetProperty for UI updates
+        }
         public questionType QuestionType
         {
             get; set;
@@ -89,11 +90,13 @@ namespace TestingAppWPF
                     {
                         case questionType.textBox:
                             {
-                                var selectedTbAnswer = Answers.FirstOrDefault(a => a.IsUserSelected);
-                                //Return score value, including negative points, if such answer exists (specifically penalized options)
-                                if (selectedTbAnswer != null)
+                                foreach (var answer in this.Answers)
                                 {
-                                    totalScore += selectedTbAnswer.Score; break;
+                                    if (UserTextInput.Equals(answer.Content, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        totalScore += answer.Score;
+                                        break;
+                                    }
                                 }
                             }
                             break;
@@ -337,22 +340,19 @@ namespace TestingAppWPF
                         break;
 
                     case questionType.textBox:
-                        var correctTextBoxAnswer = question.Answers.FirstOrDefault(a => a.Correct);
-                        var selectedTextBoxAnswer = question.Answers.FirstOrDefault(a => a.IsUserSelected);
-
-                        if (correctTextBoxAnswer != null && selectedTextBoxAnswer != null &&
-                            selectedTextBoxAnswer.Content.Equals(correctTextBoxAnswer.Content, StringComparison.OrdinalIgnoreCase))
+                        bool answeredCorrectly = false;
+                        foreach (var answer in question.Answers)
                         {
-                            questionScore += correctTextBoxAnswer.Score;
-                            questionCorrectCount++;
-                        }
-                        else
-                        {
-                            if (question.Answers.Any(a => a.Score < 0))
+                            if (question.UserTextInput.Equals(answer.Content, StringComparison.OrdinalIgnoreCase) && answer.Correct)
                             {
-                                questionScore += question.Answers.Where(a => a.Score < 0).Sum(a => a.Score);
-                                questionPenalty += question.Answers.Where(a => a.Score < 0).Sum(a => a.Penalty);
+                                answeredCorrectly = true;
+                                questionScore += answer.Score;
+                                userCorrectAnswersCount++;
+                                break;
                             }
+                        }
+                        if (!answeredCorrectly)
+                        {
                             questionIncorrectCount++;
                         }
                         break;

@@ -55,7 +55,7 @@
                             </DataTemplate>
 
                             <DataTemplate x:Key="TextBoxAnswerTemplate">
-                                <TextBox Text="{Binding Answers[0].Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                <TextBox Text="{Binding UserTextInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          Margin="0,5" Width="400" HorizontalAlignment="Left"
                                          FontSize="16" Padding="5"/>
                             </DataTemplate>
@@ -86,7 +86,7 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,20,10">
             <Button Content="← Предыдущий" Command="{Binding PreviousQuestionCommand}"  Margin="0,0,10,0"/>
             <Button Content="Следующий →" Command="{Binding NextQuestionCommand}" />
-            <Button Content="Завершить тест" Command="{Binding SubmitQuizCommand}" Margin="20,0,0,0" Padding="10,5" FontSize="16" FontWeight="Bold"/>
+            <Button Content="Завершить тест" Command="{Binding SubmitQuizCommand}" Margin="20,0,0,0" Padding="10,5" FontSize="16" FontWeight="Bold" Click="Button_Click"/>
         </StackPanel>
     </Grid>
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq; // Make sure this is included for LINQ methods like .ToArray()
+using System.Windows;
 using System.Windows.Input; // For ICommand
 
 namespace TestingAppWPF
@@ -165,8 +166,15 @@ namespace TestingAppWPF
             // Here you might typically open a new window to show results,
             // or navigate to a results view/state within the same window.
             // For simplicity, we're just updating properties in this ViewModel.
-            System.Diagnostics.Debug.WriteLine($"Quiz Submitted! Final Grade: {FinalGradeTitle}, Score: {TotalScore}");
-            System.Diagnostics.Debug.WriteLine($"Correct: {results.CorrectAnswersCount}, Incorrect: {results.IncorrectAnswersCount}, Penalty: {results.TotalPenalty}");
+            string message = $"Тест завершен!\n\n" +
+                                         $"Набранные баллы: {results.TotalScore}\n" +
+                                         $"Правильных ответов: {results.CorrectAnswersCount}\n" +
+                                         $"Неправильных ответов: {results.IncorrectAnswersCount}\n" +
+                                         $"Штрафные баллы: {results.TotalPenalty}\n\n" +
+                                         $"Итоговая оценка: {results.FinalGrade?.Title ?? "Не оценено"}";
+
+            // Display the message box
+            MessageBox.Show(message, "Результаты теста", MessageBoxButton.OK, MessageBoxImage.Information);
 
             // Disable further navigation after submission
             ((RelayCommand)PreviousQuestionCommand).RaiseCanExecuteChanged();
